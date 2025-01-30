@@ -19,7 +19,7 @@ def BOOT():
         # Map time to x
         t = (i / (2400 - 1)) * (2 * math.pi)
 
-        #https://sv.wikipedia.org/wiki/Lissajouskurva#Exempel
+        # https://sv.wikipedia.org/wiki/Lissajouskurva#Exempel
         x = int(90 * math.sin(3 * t + (math.pi/2)))
         y = int(38 * math.sin(4 * t))
 
