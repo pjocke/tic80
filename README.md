@@ -1,9 +1,7 @@
 # TODO
-- speca kub som fyrhörningar
-- implementera fyrhörningar från trianglar (tetragon)
-- testa rörelse enligt sinus
-- skala 3D till 2D, x och y baserat på z
-- Tetrakis hexahedron
+- Plotta sprite på kub
+- Flat shading
+- Glenz vector - tetrakis hexahedron
 
 # Other
 - Right-handed, counter-clockwise winding
