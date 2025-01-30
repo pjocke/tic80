@@ -9,20 +9,38 @@
 import math
 
 counter = 0
+lissajous = []
+
+def BOOT():
+    cls(0)
+
+    global lissajous
+
+    for i in range(0, 2400):
+        # Map time to x
+        t = (i / (2400 - 1)) * (2 * math.pi)
+
+        #https://sv.wikipedia.org/wiki/Lissajouskurva#Exempel
+        x = int(100 * math.sin(3 * t + (math.pi/2)) + 120)
+        y = int(48 * math.sin(4 * t) + 68)
+
+        lissajous.append((x, y))
 
 def TIC():
     global counter
 
+    
     cls(0)
 
-    # Phase-shifted Lissajous curve with evenly-spaced X mapping
-    t = (counter%240 / (240 - 1)) * (2 * math.pi)
-    x = int(120 * math.sin(t - (math.pi / 2)) + 120)
-    y = int(68 * math.sin(2 * (t - (math.pi / 2))))
+#    x = int(120 * math.sin(3 * counter%240 + (math.pi/2)) + 120)
+#    y = int(68 * math.sin(2 * counter%240) + 68)
 
-    circ(x, 68+y, 20, 12)
+    (x, y) = lissajous[counter%2400]
 
-    counter += 1#direction
+    #pix(x, y, 12)
+    circ(x, y, 20, 12)
+
+    counter += 1
 
 # <TILES>
 # 001:eccccccccc888888caaaaaaaca888888cacccccccacc0ccccacc0ccccacc0ccc
