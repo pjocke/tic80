@@ -96,6 +96,10 @@ def to_pixel(x, y, width, height):
     y_pixel = int((1 - y) / 2 * height)  # Flip y for screen coordinates
     return x_pixel, y_pixel
 
+def map_value(x, in_min=0, in_max=240, out_min=-5, out_max=-10):
+    return out_min + (x - in_min) * (out_max - out_min) / (in_max - in_min)
+
+
 # Vertices for the cube. These are right-handed, counter-clockwise wound.
 vertices = [
     [-1,  1,  1, 1],
@@ -111,11 +115,14 @@ vertices = [
 # Transpose vertices.
 transposed_vertices = transpose(vertices)
 
+counter = 0
 spin = 0
+zoom = 0
+direction = 1
 
 # This shit is done 60 times a second, rip
 def TIC():
-    global spin
+    global counter, spin, zoom, direction
 
     # x
     theta = math.radians(spin)
@@ -129,7 +136,7 @@ def TIC():
     rotation_matrix = matrix_multiply(rotation_matrix, rotation_x(theta))
 
     # Combine the rotation and translation matrices to one transformation matrix
-    translation_matrix = translation(0, 0, -5)
+    translation_matrix = translation(0, 0, map_value(zoom))
     transformation_matrix = matrix_multiply(translation_matrix, rotation_matrix)
 
     # Do the transformation
@@ -176,14 +183,24 @@ def TIC():
     # Clear screen
     cls(0)
 
+    # Hack to put the cube on a phase-shifted Lissajous curve with evenly-spaced X mapping
+    t = (counter%240 / (240 - 1)) * (2 * math.pi)
+    offset_x = int((120 * math.sin(t - (math.pi / 2)) + 120) - 120)
+    offset_y = int(68 * math.sin(2 * (t - (math.pi / 2))))
+
     for face in faces:
         coords = []
         for vertex in face[0]:
             coords.append(to_pixel(x[vertex], y[vertex], width, height))
-        tri(coords[0][0], coords[0][1], coords[1][0], coords[1][1], coords[2][0], coords[2][1], 1+face[2])
-        tri(coords[2][0], coords[2][1], coords[3][0], coords[3][1], coords[0][0], coords[0][1], 1+face[2])
+        tri(offset_x+coords[0][0], offset_y+coords[0][1], offset_x+coords[1][0], offset_y+coords[1][1], offset_x+coords[2][0], offset_y+coords[2][1], 1+face[2])
+        tri(offset_x+coords[2][0], offset_y+coords[2][1], offset_x+coords[3][0], offset_y+coords[3][1], offset_x+coords[0][0], offset_y+coords[0][1], 1+face[2])
 
-    spin += 1
+    counter += 1
+    spin += 3
+
+    zoom += direction
+    if counter%240 == 0 or counter&240 == 239:
+        direction = -direction
 
 # <TILES>
 # 001:eccccccccc888888caaaaaaaca888888cacccccccacc0ccccacc0ccccacc0ccc
