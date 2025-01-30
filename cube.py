@@ -8,6 +8,23 @@
 
 import math
 
+lissajous = []
+
+def BOOT():
+    cls(0)
+
+    global lissajous
+
+    for i in range(0, 2400):
+        # Map time to x
+        t = (i / (2400 - 1)) * (2 * math.pi)
+
+        #https://sv.wikipedia.org/wiki/Lissajouskurva#Exempel
+        x = int(90 * math.sin(3 * t + (math.pi/2)))
+        y = int(38 * math.sin(4 * t))
+
+        lissajous.append((x, y))
+
 width, height = 240.0, 136.0
 
 def matrix_multiply(A, B):
@@ -99,7 +116,6 @@ def to_pixel(x, y, width, height):
 def map_value(x, in_min=0, in_max=240, out_min=-5, out_max=-10):
     return out_min + (x - in_min) * (out_max - out_min) / (in_max - in_min)
 
-
 # Vertices for the cube. These are right-handed, counter-clockwise wound.
 vertices = [
     [-1,  1,  1, 1],
@@ -116,20 +132,19 @@ vertices = [
 transposed_vertices = transpose(vertices)
 
 counter = 0
-spin = 0
 zoom = 0
 direction = 1
 
 # This shit is done 60 times a second, rip
 def TIC():
-    global counter, spin, zoom, direction
+    global counter, zoom, direction
 
     # x
-    theta = math.radians(spin)
+    theta = math.radians(counter%360)
     # y
-    phi = math.radians(spin/2)
+    phi = math.radians((counter+128%360))
     # z
-    psi = math.radians(spin/3)
+    psi = math.radians((counter+360%360)/3)
 
     # Combine X, Y and Z rotation matrics to one rotation matrix
     rotation_matrix = matrix_multiply(rotation_z(psi), rotation_y(phi))
@@ -183,10 +198,7 @@ def TIC():
     # Clear screen
     cls(0)
 
-    # Hack to put the cube on a phase-shifted Lissajous curve with evenly-spaced X mapping
-    t = (counter%240 / (240 - 1)) * (2 * math.pi)
-    offset_x = int((120 * math.sin(t - (math.pi / 2)) + 120) - 120)
-    offset_y = int(68 * math.sin(2 * (t - (math.pi / 2))))
+    (offset_x, offset_y) = lissajous[counter%2400]
 
     for face in faces:
         coords = []
@@ -196,7 +208,6 @@ def TIC():
         tri(offset_x+coords[2][0], offset_y+coords[2][1], offset_x+coords[3][0], offset_y+coords[3][1], offset_x+coords[0][0], offset_y+coords[0][1], 1+face[2])
 
     counter += 1
-    spin += 3
 
     zoom += direction
     if counter%240 == 0 or counter&240 == 239:
