@@ -93,6 +93,52 @@ def to_pixel(x, y, width, height):
 def map_value(x, in_min=0, in_max=240, out_min=-5, out_max=-10):
     return out_min + (x - in_min) * (out_max - out_min) / (in_max - in_min)
 
+# This sucks
+def fmod(a, b):
+    return a - int(a / b) * b
+
+# Ported from the good old mode 13 toolkit
+def hsv_to_rgb(h, s, v):
+    v2 = v/100.0
+    c = v2*(s/100.0)
+    x = c*(1.0-math.fabs(fmod(h/60.0, 2)-1.0))
+    m = v2-c
+
+    r, g, b = 0.0, 0.0, 0.0
+
+    if h >= 0 and h < 60:
+        r = c
+        g = x
+        b = 0
+    elif h >= 60 and h < 120:
+        r = x
+        g = c
+        b = 0
+    elif h >= 120 and h < 180:
+        r = 0
+        g = c
+        b = x
+    elif h >= 180 and h < 240:
+        r = 0
+        g = x
+        b = c
+    elif h >= 240 and h < 300:
+        r = x
+        g = 0
+        b = c
+    else:
+        r = c
+        g = 0
+        b = x
+    
+    r = (r+m)*255.0
+    g = (g+m)*255.0
+    b = (b+m)*255.0
+    
+    return(int(r), int(g), int(b))
+
+colors = []
+
 # Vertices for the cube. These are right-handed, counter-clockwise wound.
 vertices = [
     [-1,  1,  1, 1],
@@ -109,19 +155,40 @@ vertices = [
 transposed_vertices = transpose(vertices)
 
 counter = 0
+cycle = 0
+
+def BOOT():
+    global colors
+
+    # Catch the rainbow
+    for i in range(0, 360, 15):
+        colors.append(hsv_to_rgb(i, 100.0, 100.0))
 
 # This shit is done 60 times a second, rip
 def TIC():
-    global counter
+    global counter, color, cycle
+
+    # Create the palette, 12 colors on indices 4 -- 15, sliding through the ROYGBIV
+    start = cycle%24
+    for hue in range(start, start+12):
+        r, g, b = colors[hue%24]
+
+        color = hue - start + 4
+
+        poke(0x3FC0+(color*3)+0, r)
+        poke(0x3FC0+(color*3)+1, g)
+        poke(0x3FC0+(color*3)+2, b)
 
     # x
-    theta = math.radians(counter%360)
+    #theta = math.radians(counter%360)
+    theta = math.radians(22.5)
 
     # y
     phi = math.radians((counter+128%360))
 
     # z
-    psi = math.radians((counter+360%360)/3)
+    #psi = math.radians((counter+360%360)/3)
+    psi = math.radians(-5)
 
     # Combine X, Y and Z rotation matrics to one rotation matrix
     rotation_matrix = matrix_multiply(rotation_z(psi), rotation_y(phi))
@@ -186,7 +253,11 @@ def TIC():
 
         ttri(coords[0][0], coords[0][1], coords[1][0], coords[1][1], coords[2][0], coords[2][1], texture[0][0], texture[0][1], texture[1][0], texture[1][1], texture[2][0], texture[2][1], z1=depth[0], z2=depth[1], z3=depth[2])
         ttri(coords[2][0], coords[2][1], coords[3][0], coords[3][1], coords[0][0], coords[0][1], texture[2][0], texture[2][1], texture[3][0], texture[3][1], texture[0][0], texture[0][1], z1=depth[2], z2=depth[3], z3=depth[0])
+
     counter += 1
+
+    if counter%4 == 0:
+        cycle += 1
 
 # <TILES>
 # 000:6555555555555555555555555555555555555555555555555555555555555555
