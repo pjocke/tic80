@@ -177,25 +177,15 @@ def TIC():
 
     for face in faces:
         coords = []
-
-#        lajn = face[2]
-#        ttri(lajn[0][0], lajn[0][1], lajn[1][0], lajn[1][1], lajn[2][0], lajn[2][1], lajn[0][0], lajn[0][1], lajn[1][0], lajn[1][1], lajn[2][0], lajn[2][1])
-#        ttri(lajn[2][0], lajn[2][1], lajn[3][0], lajn[3][1], lajn[0][0], lajn[0][1], lajn[2][0], lajn[2][1], lajn[3][0], lajn[3][1], lajn[0][0], lajn[0][1])
-#        trib(lajn[0][0], lajn[0][1], lajn[1][0], lajn[1][1], lajn[2][0], lajn[2][1], 13)
-#        trib(lajn[2][0], lajn[2][1], lajn[3][0], lajn[3][1], lajn[0][0], lajn[0][1], 14)
-
-#        line(int(lajn[0][0]), int(lajn[0][1]), int(lajn[1][0]), int(lajn[1][1]), 1)
-#        line(int(lajn[1][0]), int(lajn[1][1]), int(lajn[2][0]), int(lajn[2][1]), 1)
-#        line(int(lajn[2][0]), int(lajn[2][1]), int(lajn[3][0]), int(lajn[3][1]), 1)
-#        line(int(lajn[3][0]), int(lajn[3][1]), int(lajn[0][0]), int(lajn[0][1]), 1)
+        depth = []
 
         texture = face[2]
         for vertex in face[0]:
             coords.append(to_pixel(x[vertex], y[vertex], width, height))
-#        tri(coords[0][0], coords[0][1], coords[1][0], coords[1][1], coords[2][0], coords[2][1], 1+face[3])
-#        tri(coords[2][0], coords[2][1], coords[3][0], coords[3][1], coords[0][0], coords[0][1], 1+face[3])
-        ttri(coords[0][0], coords[0][1], coords[1][0], coords[1][1], coords[2][0], coords[2][1], texture[0][0], texture[0][1], texture[1][0], texture[1][1], texture[2][0], texture[2][1])
-        ttri(coords[2][0], coords[2][1], coords[3][0], coords[3][1], coords[0][0], coords[0][1], texture[2][0], texture[2][1], texture[3][0], texture[3][1], texture[0][0], texture[0][1])
+            depth.append(z[vertex])
+
+        ttri(coords[0][0], coords[0][1], coords[1][0], coords[1][1], coords[2][0], coords[2][1], texture[0][0], texture[0][1], texture[1][0], texture[1][1], texture[2][0], texture[2][1], z1=depth[0], z2=depth[1], z3=depth[2])
+        ttri(coords[2][0], coords[2][1], coords[3][0], coords[3][1], coords[0][0], coords[0][1], texture[2][0], texture[2][1], texture[3][0], texture[3][1], texture[0][0], texture[0][1], z1=depth[2], z2=depth[3], z3=depth[0])
     counter += 1
 
 # <TILES>
