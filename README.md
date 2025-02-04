@@ -1,7 +1,4 @@
 # TODO
-- palett
-- diamond-square
-- Plotta sprite på kub
 - Flat shading
 - Glenz vector - tetrakis hexahedron
 
